@@ -9,13 +9,21 @@ module "vpc" {
   public_subnet = "10.0.1.0/24"
 }
 
+data "template_file" "index" {
+  count    = "${length(var.instance_ips)}"
+  template = "${file("files/index.html.tpl")}"
+
+  vars {
+    hostname = "web-${format("%03d", count.index + 1)}"
+  }
+}
+
 resource "aws_instance" "web" {
   ami                         = "${lookup(var.ami, var.region)}"
   instance_type               = "${var.instance_type}"
   key_name                    = "${var.key_name}"
   subnet_id                   = "${module.vpc.public_subnet_id}"
   private_ip                  = "${var.instance_ips[count.index]}"
-  user_data                   = "${file("files/web_bootstrap.sh")}"
   associate_public_ip_address = true
 
   vpc_security_group_ids = [
@@ -27,6 +35,32 @@ resource "aws_instance" "web" {
   }
 
   count = "${length(var.instance_ips)}"
+
+  connection {
+    user        = "ubuntu"
+    private_key = "${file(var.key_path)}"
+  }
+
+  provisioner "file" {
+    content     = "${element(data.template_file.index.*.rendered, count.index)}"
+    destination = "/tmp/index.html"
+  }
+
+  provisioner "ansible" {
+   connection {
+     user = "ubuntu"
+     }
+  }
+
+  provisioner "remote-exec" {
+    script = "files/bootstrap_puppet.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mv /tmp/index.html /var/www/html/index.html",
+    ]
+  }
 }
 
 resource "aws_elb" "web" {

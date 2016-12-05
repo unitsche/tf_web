@@ -4,6 +4,12 @@ variable "region" {
 
 variable "key_name" {
   description = "The AWS key pair to use for resources."
+  default = "aws-fr-11-2016"
+}
+
+variable "key_path" {
+  description = "The location of the AWS key file to use for connections."
+  default     = "/Users/un/.ssh/aws-fr-11-2016.pem"
 }
 
 variable "ami" {
