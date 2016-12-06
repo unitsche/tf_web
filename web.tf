@@ -2,6 +2,12 @@ provider "aws" {
   region = "${var.region}"
 }
 
+module "remote_state" {
+     source      = "github.com/unitsche/tf_remote_state"
+     prefix      = "${var.prefix}"
+     environment = "${var.environment}"
+}
+
 module "vpc" {
   source        = "github.com/unitsche/tf_vpc.git"
   name          = "web"
@@ -46,11 +52,11 @@ resource "aws_instance" "web" {
     destination = "/tmp/index.html"
   }
 
-  provisioner "ansible" {
-   connection {
-     user = "ubuntu"
-     }
-  }
+  #provisioner "ansible" {
+  # connection {
+  #   user = "ubuntu"
+  #   }
+  #}
 
   provisioner "remote-exec" {
     script = "files/bootstrap_puppet.sh"

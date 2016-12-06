@@ -27,3 +27,12 @@ variable "instance_ips" {
   description = "The IPs to use for our instances"
   default     = ["10.0.1.20", "10.0.1.21"]
 }
+
+variable "prefix" {
+     default     = "examplecom"
+     description = "The name of our org, i.e. examplecom."
+   }
+   variable "environment" {
+     default = "web"
+     description = "The name of the environment."
+}
