@@ -7,7 +7,8 @@
 All this is for testing and playing only
 
 ## To configure remote storage ##
-```terraform remote config \
+```
+terraform remote config \
      -backend=s3 \
      -backend-config="bucket=examplecom-remote-state-web" \
      -backend-config="key=/terraform.tfstate" \
